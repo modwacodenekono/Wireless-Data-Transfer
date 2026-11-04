@@ -32,9 +32,7 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 enable_language(C ASM)
 
 # Create an executable object type
-add_executable(${CMAKE_PROJECT_NAME}
-        Core/Inc/ssd1306_fonts.h
-        Core/Src/ssd1306.c)
+add_executable(${CMAKE_PROJECT_NAME})
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
@@ -47,6 +45,11 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    Core/Src/main.c
+    Core/Src/stm32f4xx_it.c
+    Core/Src/stm32f4xx_hal_msp.c
+    Core/Src/ssd1306.c
+    Core/Src/ssd1306_fonts.c
 )
 
 # Add include paths
