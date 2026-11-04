@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
+#include "ssd1306.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,6 +55,8 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 
 /* USER CODE END PFP */
 
@@ -93,12 +96,24 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART2_UART_Init();
+  MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+
+  ssd1306_Init();
+  ssd1306_Fill(Black);
+  ssd1306_SetCursor(10, 10);
+  ssd1306_WriteString("ESP32 test", Font_11x18, White);
+  ssd1306_SetCursor(10, 35);
+  ssd1306_WriteString("ESP32 test test", Font_7x10, White);
+  ssd1306_UpdateScreen();
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint8_t rx_byte;
+  HAL_UART_Receive_IT(&huart2, &rx_byte, 1);
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -261,6 +276,18 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == USART2)
+  {
+    // Forward the received byte back out through USART2 to the ESP32
+    HAL_UART_Transmit(&huart2, &rx_byte, 1, HAL_MAX_DELAY);
+
+    // Re-enable interrupt-driven reception for the next incoming byte
+    HAL_UART_Receive_IT(&huart2, &rx_byte, 1);
+  }
+}
 
 /* USER CODE END 4 */
 
